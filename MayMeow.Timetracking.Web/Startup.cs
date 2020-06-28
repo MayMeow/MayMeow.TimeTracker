@@ -8,10 +8,12 @@ using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
-using MayMeow.Timetracking.Web.Data;
+using MayMeow.Timetracking.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MayMeow.Timetracking.Entities.Identity;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace MayMeow.Timetracking.Web
 {
@@ -28,16 +30,17 @@ namespace MayMeow.Timetracking.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(
-                    Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                options.UseMySql(
+                    Configuration.GetConnectionString("DefaultConnection"), mysqlOptions => mysqlOptions
+                    .ServerVersion(new Version(8,0,20), ServerType.MySql)));
+            services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
-           services.AddRazorPages();
+            services.AddRazorPages();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext dbContext)
         {
             if (env.IsDevelopment())
             {
@@ -50,6 +53,9 @@ namespace MayMeow.Timetracking.Web
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            dbContext.Database.Migrate();
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

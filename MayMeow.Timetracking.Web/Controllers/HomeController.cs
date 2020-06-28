@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using MayMeow.Timetracking.Web.Models;
+using MayMeow.Timetracking.Entities.Errors;
 
 namespace MayMeow.Timetracking.Web.Controllers
 {
